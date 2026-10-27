@@ -1,10 +1,10 @@
 # Lecture 01 — Introduction to Server-side Programming & Node.js Essentials
 
-**Part 1 of 2** — Theory + Practical `01` to `03`. Part 2 (Practical `04`, `05`) agli class mein.
+Theory + Practical `01` se `05`.
 
 > Tested on **Node.js v22.21.0** and **npm 11.6.2** (Windows). Agar aap ka version thora different ho tou koi masla nahi, saari demos basic Node.js features use karti hain.
 
-## Part 1 Mein Kya Seekhenge
+## Is Lecture Mein Kya Seekhenge
 
 1. Client-server architecture aur request/response cycle
 2. Server-side programming kyun zaroori hai
@@ -15,7 +15,7 @@
 7. Node.js ki features, benefits aur limitations
 8. Node.js installation, NPM vs NVM
 9. Node.js architecture (V8, libuv, event loop) ka basic idea
-10. Practical: pehla program, global objects, programming constructs
+10. Practical: pehla program, global objects, programming constructs, console app aur pehla web server
 
 ---
 
@@ -89,7 +89,7 @@ Dynamic page banane ke liye server pe code chalana parta hai — yehi **server-s
 
 **Web server** ek software (aur kabhi us software ko chalane wala computer) hota hai jo client ki **HTTP requests** receive karta hai aur **responses** wapas bhejta hai.
 
-Mashhoor web servers: **Apache**, **Nginx**, **IIS**. Node.js mein hum khud apna web server bana sakte hain (`http` module se) — yeh Part 2 aur Lecture 02 mein dekhenge.
+Mashhoor web servers: **Apache**, **Nginx**, **IIS**. Node.js mein hum khud apna web server bana sakte hain (`http` module se) — yeh aaj ke practical mein (`05-server.js`) aur Lecture 02 mein dekhenge.
 
 ### Request Lifecycle (Ek Request Ka Safar)
 
@@ -403,9 +403,9 @@ Yehi **non-blocking** hai. Is mein ek hi limitation hai: agar waiter khud koi bh
 
 ---
 
-## 10. Practical (Part 1)
+## 10. Practical
 
-Practical files ka plan: terminal mein `node <filename>` se chalayen. Yeh teeno programs **console-based** hain — koi window ya button nahi, sirf terminal mein text input/output.
+Saari files terminal mein `node <filename>` se chalti hain. Pehle 4 programs **console-based** hain — koi window ya button nahi, sirf terminal mein text input/output. Aakhri file (`05`) ek chhota web server hai.
 
 ### Practical 01 — `01-hello.js` (Pehla Program)
 
@@ -526,15 +526,92 @@ Ali is learning Node.js
 
 > `typeof null` aur `typeof []` dono `object` dete hain — yeh JavaScript ki purani quirk hai, ghalti na samjhein.
 
+### Practical 04 — `04-console-app.js` (Console App)
+
+Console app woh program hai jo **terminal mein** chalta hai. Ismein humne input lene ke **do tareeqe** dekhe:
+
+1. **Command-line argument** — `process.argv` se
+   ```bash
+   node 04-console-app.js Ali
+   ```
+   `process.argv[0]` = node ka path, `[1]` = file ka path, `[2]` = pehla argument (`"Ali"`).
+
+2. **Keyboard se input** — built-in `readline` module se: `rl.question("sawal", (jawab) => { ... })`
+
+Program ke hisse:
+
+- `readline.createInterface(...)` — keyboard se input aur screen pe output ka connection
+- `getGrade(marks)` — marks se grade batane wali **function** (constructs wala `if` yahan kaam aaya)
+- `rl.question(...)` — sawal poochta hai. Jawab milne par uske andar wali function (**callback**) chalti hai. *(Callback ki detail Class 4 mein.)*
+- `Number(answer)` aur `Number.isNaN(...)` — jawab string hota hai, usay number banate hain aur check karte hain ke sahi number hai ya nahi
+- `rl.close()` — input band karta hai, tab program khatam hota hai
+
+Chalayen:
+
+```bash
+node 04-console-app.js
+```
+
+Expected output:
+
+```
+Enter your name: Ali
+Enter your marks (0-100): 72
+-----------------------
+Name  : Ali
+Marks : 72
+Grade : B
+-----------------------
+```
+
+Naam argument ke sath (`node 04-console-app.js Sara`) chalayen tou naam nahi poochhta, seedha marks poochhta hai.
+Ghalat marks (jaise `150`) daalen tou `Invalid marks, please try again.` aata hai aur dobara poochhta hai.
+
+### Practical 05 — `05-server.js` (Pehla Web Server)
+
+```js
+const http = require("http");
+
+const server = http.createServer((req, res) => {
+  res.end("Hello from Node server");
+});
+
+server.listen(3000, () => {
+  console.log("Server running at http://localhost:3000");
+});
+```
+
+Chalayen:
+
+```bash
+node 05-server.js
+```
+
+Terminal mein `Server running at http://localhost:3000` aayega. Browser mein **http://localhost:3000** kholen — `Hello from Node server` nazar aayega. Band karne ke liye terminal mein **Ctrl + C**.
+
+**Samajhne wali baatein:**
+
+- `require("http")` — built-in `http` module load kiya (install nahi karna parta)
+- `req` = client ki **request** (jo browser ne bheji)
+- `res` = hamara **response** (jo hum wapas bhej rahe hain)
+- `res.end(...)` = response bhej ke khatam karta hai
+- `3000` = **port number** — server is darwaze pe sunta hai
+- `localhost` = aap ka apna computer
+- Terminal wapas nahi aata — normal hai, server request ke intezar mein chalta rehta hai
+
+Yeh server abhi sirf shuruaat hai. `http` module ki poori detail **Lecture 02** mein hai.
+
 ---
 
-## Files (Part 1)
+## Files
 
 | File | Kya hai |
 |---|---|
 | `01-hello.js` | Pehla program, `global`, `process`, `__filename`, `__dirname` |
 | `02-global-objects.js` | Global objects aur timers |
 | `03-constructs.js` | Variables, conditions, loops, arrays, objects, functions |
+| `04-console-app.js` | Console app: input lena (`process.argv`, `readline`) aur grade batana |
+| `05-server.js` | Pehla web server (`http` module) |
 
 ## Common Questions / Confusions
 
@@ -574,7 +651,16 @@ Nahi, yeh private IP hai (sirf ghar/office network ke andar). Internet pe jo add
 **Q12. `typeof null` `object` kyun deta hai?**
 JavaScript ki purani known quirk hai. Null check karna ho tou `value === null` use karein.
 
-## Quick Recap (Part 1)
+**Q13. Server chalane ke baad terminal wapas nahi aata, kya masla hai?**
+Koi masla nahi. Server chalta rehta hai request ke intezar mein. Band karne ke liye **Ctrl + C**.
+
+**Q14. `Error: listen EADDRINUSE: address already in use :::3000` kya hai?**
+Port 3000 pe pehle se koi aur server chal raha hai (shayad purana terminal). Usay Ctrl + C se band karein, ya naya port use karein (jaise 3001).
+
+**Q15. Code badla lekin browser mein purana jawab aa raha hai?**
+Server ko restart karna parta hai: Ctrl + C, phir dobara `node 05-server.js`.
+
+## Quick Recap
 
 - Client request bhejta hai, server response deta hai
 - Dynamic apps ke liye server-side programming chahiye: database, security, business logic
@@ -585,10 +671,12 @@ JavaScript ki purani known quirk hai. Null check karna ho tou `value === null` u
 - NPM = packages, NVM = Node versions
 - V8 + libuv + Node APIs = Node.js architecture
 - `global`, `process`, `console`, `__filename`, `__dirname` bina import ke milte hain
+- Console app: input `process.argv` ya `readline` se, output `console.log` se
+- `http.createServer((req, res) => ...)` + `server.listen(3000)` = pehla web server; band karne ke liye Ctrl + C
 
 ---
 
-## Assignment (Part 1 — Self-Study)
+## Assignment (Self-Study)
 
 1. **Install karein:** Node.js (LTS) aur npm install karein. `node -v` aur `npm -v` ka **screenshot** submit karein.
 
@@ -605,8 +693,8 @@ JavaScript ki purani known quirk hai. Null check karna ho tou `value === null` u
    ```
    *Hint:* `new Date().toLocaleDateString()`
 
-## Part 2 Mein Kya Aayega
-
-- `04-console-app.js` — console app: keyboard se input (`readline`) aur `process.argv`
-- `05-server.js` — pehla web server (`http` module ka preview)
-- Assignment ka teesra task (server banana aur `req.url` print karna)
+3. **Server:** Ek file `server.js` banayen jo port **3000** pe chale aur har request ka URL (`req.url`) **terminal mein print** kare. Browser mein `http://localhost:3000/about` kholen tou terminal mein yeh dikhna chahiye:
+   ```
+   /about
+   ```
+   *Note:* Browser aksar `/favicon.ico` ki alag request bhi bhejta hai, tou terminal mein woh bhi nazar aa sakti hai — yeh normal hai.
