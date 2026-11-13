@@ -1,4 +1,4 @@
-# Lecture 08 — File Upload with `formidable`
+# Lecture 07 — File Upload with `formidable`
 
 > Tested on **Node.js v22.21.0**, **formidable 3.5.4** (Windows).
 
