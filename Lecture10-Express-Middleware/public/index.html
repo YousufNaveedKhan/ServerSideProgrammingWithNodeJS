@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <h1>Contact Us</h1>
+        <form id="myForm">
+            <label for="username">Username</label>
+            <input name="name" type="text" id="name" placeholder="Enter name" required>
+            <textarea name="message" id="message" placeholder="Enter message" required></textarea>
+            <button type="submit">submit</button>
+        </form>
+
+        <pre id="results"></pre>
+
+
+    </div>
+    <script>
+        document.getElementById("myForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            const response = await fetch("/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+            document.getElementById("results").textContent = response.status + " " + JSON.stringify(await response.json(), null, 4)
+        });
+    </script>
+</body>
+
+</html>
