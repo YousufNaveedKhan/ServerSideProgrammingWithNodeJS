@@ -23,7 +23,35 @@ meriApp.post("/contact", (req, res) => {
     res.status(201).json({ received: { name, message } })
 });
 
+// Route level middlewares 
+// Middleware function
+function checkAPIKey(req, res, next) {
+    if (req.headers["x-api-key"] !== "secret123") {
+        return res.status(401).json({ error: "Invalid or missing API Key" })
+    }    
+    next();   
+}
+
+meriApp.get("/private", checkAPIKey, (req, res) => {
+    res.json({ message: "Welcome" });
+})
+
+meriApp.get("/error", (req, res) => {
+    throw new Error("Error");
+});
+
+// 404 Middleware
+meriApp.use((req,res) => {
+    res.status(404).json({ error: "404 not found" })
+});
+
+meriApp.use((err, req, res, next) => {
+    console.log("Error Message: ", err.message);
+    res.status(500).json({ error: "Internal server error" });
+})
+
 // localhost:3000
 meriApp.listen(3000, (req, res) => {
     console.log("Server running at http://localhost:3000");
 });
+
