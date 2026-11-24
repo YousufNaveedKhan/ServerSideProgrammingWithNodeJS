@@ -1,57 +1,62 @@
+// 01-middleware.js
+// Middleware: functions that run BEFORE the route handler, in the order we write them.
+// Setup (once): npm install
+// Run: node 01-middleware.js   then open http://localhost:3000   (public/index.html is served)
+// Stop the server with Ctrl + C.
+
 const express = require("express");
 const path = require("path");
-const meriApp = express();
+const app = express();
 
-// Our own middleware:  a Logger
-meriApp.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
+// ---- 1. Our own middleware: a logger ----
+// next() passes control to the next middleware / route. Forget it and the request hangs.
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
 });
 
-// Built in middlewares
-// res.writeHead(200, { "Content-Type": "application/json" })
-meriApp.use(express.json()); // read json data
-meriApp.use(express.urlencoded()) // req.body => parse
-meriApp.use(express.static(path.join(__dirname, "public"))) // => "/" 
+// ---- 2. Built-in middleware ----
+app.use(express.json()); // reads JSON body        -> req.body
+app.use(express.urlencoded({ extended: true })); // reads form body (name=Ali&city=...) -> req.body
+app.use(express.static(path.join(__dirname, "public"))); // serves files from the "public" folder
 
-// Routes ( Route Handler )
-meriApp.post("/contact", (req, res) => {
-    const { name, message } = req.body;
-    if (!name || !message) {
-        return res.status(400).json({ error: "name and message are required!" })
-    }
-    res.status(201).json({ received: { name, message } })
+// ---- 3. Routes ----
+app.post("/contact", (req, res) => {
+  const { name, message } = req.body; // no data/end events needed any more!
+  if (!name || !message) {
+    return res.status(400).json({ error: "name and message are required" });
+  }
+  res.status(201).json({ received: { name, message } });
 });
 
-// Route level middlewares 
-// Middleware function
-function checkAPIKey(req, res, next) {
-    if (req.headers["x-api-key"] !== "secret123") {
-        return res.status(401).json({ error: "Invalid or missing API Key" })
-    }    
-    next();   
+// ---- 4. Route-level middleware: runs only for this route ----
+function checkApiKey(req, res, next) {
+  if (req.headers["x-api-key"] !== "secret123") {
+    return res.status(401).json({ error: "Invalid or missing API key" });
+  }
+  next();
 }
 
-meriApp.get("/private", checkAPIKey, (req, res) => {
-    res.json({ message: "Welcome" });
-})
-
-meriApp.get("/error", (req, res) => {
-    throw new Error("Error");
+app.get("/private", checkApiKey, (req, res) => {
+  res.json({ message: "Welcome, you have access" });
 });
 
-// 404 Middleware
-meriApp.use((req,res) => {
-    res.status(404).json({ error: "404 not found" })
+// A route that fails on purpose, to see the error handler work
+app.get("/error", (req, res) => {
+  throw new Error("Something broke!");
 });
 
-meriApp.use((err, req, res, next) => {
-    console.log("Error Message: ", err.message);
-    res.status(500).json({ error: "Internal server error" });
-})
-
-// localhost:3000
-meriApp.listen(3000, (req, res) => {
-    console.log("Server running at http://localhost:3000");
+// ---- 5. 404 middleware: after all routes ----
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
 });
 
+// ---- 6. Error-handling middleware: has FOUR parameters (err, req, res, next) ----
+app.use((err, req, res, next) => {
+  console.error("Error:", err.message);
+  res.status(500).json({ error: "Internal server error" });
+});
+
+app.listen(3000, () => { 
+  console.log("Server running at http://localhost:3000");
+});

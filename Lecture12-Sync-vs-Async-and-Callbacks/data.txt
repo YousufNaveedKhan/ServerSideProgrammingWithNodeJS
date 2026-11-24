@@ -1,0 +1,2 @@
+Hello from data.txt
+This file is used to show sync and async file reading.
